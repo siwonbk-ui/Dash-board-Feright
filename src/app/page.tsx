@@ -7,41 +7,48 @@ import InteractiveMap from "@/components/dashboard/InteractiveMap";
 import { RouteTable } from "@/components/dashboard/RouteTable";
 import { TrendChart } from "@/components/dashboard/TrendChart";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Ship, Globe } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Ship, Globe, Info } from "lucide-react";
 
 export default function Dashboard() {
   const { routes, globalAverage } = useFreightData();
-  const [selectedRouteId, setSelectedRouteId] = useState<string>(routes[0]?.id || "CN-US");
+  const [selectedRouteId, setSelectedRouteId] = useState<string>(routes[0]?.id || "TH-CN");
 
   const selectedRoute = routes.find(r => r.id === selectedRouteId) || routes[0];
 
   return (
-    <div className="min-h-screen relative selection:bg-indigo-100">
+    <div className="min-h-screen relative selection:bg-indigo-100 pb-20">
       <div className="container mx-auto p-4 md:p-8 space-y-6 max-w-7xl relative z-10">
         
         {/* Header */}
-        <header className="flex items-center justify-between mb-8 pb-6 border-b border-slate-200">
+        <header className="flex flex-col md:flex-row md:items-center justify-between mb-8 pb-6 border-b border-slate-200 gap-4">
           <div className="flex items-center space-x-4">
-            <div className="w-12 h-12 rounded-2xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-200">
-              <Ship className="text-white h-6 w-6" />
+            <div className="w-14 h-14 rounded-2xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-200">
+              <Ship className="text-white h-8 w-8" />
             </div>
             <div>
-              <h1 className="text-3xl font-black tracking-tight text-slate-900">
+              <h1 className="text-3xl font-black tracking-tighter text-slate-900">
                 Nexus<span className="text-indigo-600">Freight</span>
               </h1>
-              <div className="flex items-center text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">
-                <Globe className="h-3 w-3 mr-1" />
-                Real-time Intelligence Platform
+              <div className="flex items-center text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mt-0.5">
+                <Globe className="h-3 w-3 mr-1.5" />
+                Global Container Index Platform
               </div>
             </div>
           </div>
           
-          <div className="flex items-center space-x-2 bg-white rounded-full px-5 py-2 border border-slate-200 shadow-sm">
-            <span className="relative flex h-2.5 w-2.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500 text-white"></span>
-            </span>
-            <span className="text-xs font-bold text-slate-600 tracking-wide uppercase">Live Market Data</span>
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="flex items-center space-x-2 bg-slate-900 text-white rounded-xl px-4 py-2 shadow-xl">
+               <span className="text-[10px] font-black uppercase tracking-widest text-indigo-300">Unit:</span>
+               <span className="text-xs font-bold font-mono">USD / 40ft (FEU)</span>
+            </div>
+            <div className="flex items-center space-x-2 bg-white rounded-xl px-4 py-2 border border-slate-200 shadow-sm">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              </span>
+              <span className="text-[10px] font-black text-slate-600 tracking-wide uppercase">Real-time Feed</span>
+            </div>
           </div>
         </header>
 
@@ -50,17 +57,24 @@ export default function Dashboard() {
           <div className="lg:col-span-1 space-y-8">
             <OverviewPanel globalAverage={globalAverage} />
             
-            <Card className="bg-white border-slate-200 shadow-xl">
-              <CardHeader className="pb-2 border-b border-slate-50">
-                <CardTitle className="text-xs font-bold text-slate-400 uppercase tracking-widest">
-                  Live Trend Analysis
+            <Card className="bg-white border-slate-200 shadow-2xl relative overflow-hidden group">
+              <div className="absolute top-0 right-0 p-3 opacity-20 group-hover:opacity-40 transition-opacity">
+                 <Info className="h-4 w-4 text-slate-400" />
+              </div>
+              <CardHeader className="pb-2 border-b border-slate-50 bg-slate-50/30">
+                <CardTitle className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                  Live Trend Analysis (USD/FEU)
                 </CardTitle>
-                <div className="text-xl font-bold mt-2 flex items-baseline gap-2 text-slate-800">
-                  {selectedRoute?.origin} <span className="text-slate-300 text-sm font-medium">→</span> {selectedRoute?.destination}
+                <div className="text-xl font-black mt-2 flex items-baseline gap-2 text-slate-800">
+                  {selectedRoute?.origin} <span className="text-slate-300 text-sm font-light">→</span> {selectedRoute?.destination}
                 </div>
               </CardHeader>
               <CardContent>
                 <TrendChart route={selectedRoute} />
+                <div className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between">
+                   <div className="text-[9px] font-bold text-slate-400 uppercase">Reporting Basis</div>
+                   <Badge className="bg-slate-100 text-slate-600 border-0 hover:bg-slate-100">FCL - Ocean Freight</Badge>
+                </div>
               </CardContent>
             </Card>
           </div>
@@ -77,10 +91,10 @@ export default function Dashboard() {
         {/* Bottom Row: Table */}
         <div className="grid grid-cols-1 pt-4">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-bold tracking-tight text-slate-800 flex items-center">
-              Active Trade Segments
-              <span className="ml-3 px-2 py-0.5 bg-slate-100 text-slate-500 text-[10px] rounded-md border border-slate-200 uppercase tracking-tighter">
-                {routes.length} Active
+            <h2 className="text-xl font-black tracking-tight text-slate-800 flex items-center">
+              Active Export Segments
+              <span className="ml-3 px-2 py-0.5 bg-indigo-600 text-white text-[9px] font-black rounded uppercase tracking-tighter">
+                {routes.length} Active Routes
               </span>
             </h2>
           </div>

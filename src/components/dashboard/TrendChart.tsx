@@ -30,14 +30,14 @@ export function TrendChart({ route }: TrendChartProps) {
           <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(0,0,0,0.05)" />
           <XAxis 
             dataKey="time" 
-            tick={{ fill: 'rgba(0,0,0,0.4)', fontSize: 11, fontWeight: 500 }}
+            tick={{ fill: 'rgba(0,0,0,0.4)', fontSize: 11, fontWeight: 700 }}
             tickLine={false}
             axisLine={false}
             minTickGap={30}
           />
           <YAxis 
             domain={['dataMin - 100', 'dataMax + 100']}
-            tick={{ fill: 'rgba(0,0,0,0.4)', fontSize: 11, fontWeight: 500 }}
+            tick={{ fill: 'rgba(0,0,0,0.4)', fontSize: 11, fontWeight: 700 }}
             tickLine={false}
             axisLine={false}
             tickFormatter={(value) => `$${value}`}
@@ -46,7 +46,7 @@ export function TrendChart({ route }: TrendChartProps) {
           <Tooltip 
             contentStyle={{ backgroundColor: 'white', border: '1px solid #e2e8f0', borderRadius: '12px', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
             itemStyle={{ color: '#0f172a', fontWeight: 'bold' }}
-            formatter={(value: any) => [`$${Number(value).toFixed(0)}`, 'Rate']}
+            formatter={(value: any) => [`$${Number(value).toFixed(0)} USD`, 'Rate per FEU']}
             labelStyle={{ color: '#64748b', marginBottom: '5px', fontWeight: 'bold', fontSize: '10px' }}
           />
           <Area 
