@@ -14,10 +14,10 @@ interface InteractiveMapProps {
 
 const InteractiveMap = ({ routes, selectedRouteId, onSelectRoute }: InteractiveMapProps) => {
   return (
-    <div className="w-full h-full min-h-[400px] bg-card/20 rounded-xl overflow-hidden relative border border-white/5 shadow-inner">
+    <div className="w-full h-full min-h-[400px] bg-slate-50 rounded-xl overflow-hidden relative border border-slate-200 shadow-inner">
       <div className="absolute top-4 left-4 z-10 pointer-events-none">
-        <h3 className="text-lg font-medium text-foreground/80 tracking-tight">Active Global Routes</h3>
-        <p className="text-xs text-muted-foreground">Select a route or hub to view rates</p>
+        <h3 className="text-lg font-bold text-slate-800 tracking-tight">Global Trade Lanes</h3>
+        <p className="text-xs text-slate-500 font-medium">Click a hub or route for analytics</p>
       </div>
       
       <ComposableMap 
@@ -30,12 +30,12 @@ const InteractiveMap = ({ routes, selectedRouteId, onSelectRoute }: InteractiveM
               <Geography
                 key={geo.rsmKey}
                 geography={geo}
-                fill="rgba(255,255,255,0.05)"
-                stroke="rgba(255,255,255,0.1)"
+                fill="#e2e8f0"
+                stroke="#cbd5e1"
                 strokeWidth={0.5}
                 style={{
                   default: { outline: "none" },
-                  hover: { fill: "rgba(255,255,255,0.1)", outline: "none" },
+                  hover: { fill: "#cbd5e1", outline: "none" },
                   pressed: { outline: "none" },
                 }}
               />
@@ -47,8 +47,8 @@ const InteractiveMap = ({ routes, selectedRouteId, onSelectRoute }: InteractiveM
           const isSelected = selectedRouteId === route.id;
           const isUp = route.changePercent > 0;
           const lineColor = isSelected 
-            ? (isUp ? "rgba(239, 68, 68, 0.8)" : "rgba(16, 185, 129, 0.8)")
-            : "rgba(255, 255, 255, 0.2)";
+            ? (isUp ? "rgba(220, 38, 38, 0.9)" : "rgba(5, 150, 105, 0.9)")
+            : "rgba(100, 116, 139, 0.3)";
 
           return (
             <React.Fragment key={`route-${route.id}`}>
@@ -56,24 +56,24 @@ const InteractiveMap = ({ routes, selectedRouteId, onSelectRoute }: InteractiveM
                 from={route.originCoords}
                 to={route.destCoords}
                 stroke={lineColor}
-                strokeWidth={isSelected ? 3 : 1}
+                strokeWidth={isSelected ? 4 : 2}
                 strokeLinecap="round"
-                className={`transition-all duration-300 cursor-pointer ${isSelected ? 'drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]' : ''}`}
+                className={`transition-all duration-300 cursor-pointer ${isSelected ? 'drop-shadow-lg' : ''}`}
                 onClick={() => onSelectRoute(route.id)}
               />
               
               {/* Origin Marker */}
               <Marker coordinates={route.originCoords}>
-                <circle r={isSelected ? 6 : 4} fill={lineColor} className="transition-all duration-300" />
-                <text textAnchor="middle" y={-10} style={{ fill: "white", fontSize: "10px", fontWeight: isSelected ? "bold" : "normal", opacity: isSelected ? 1 : 0.5 }}>
+                <circle r={isSelected ? 6 : 4} fill={lineColor} className="transition-all duration-300" stroke="white" strokeWidth={2} />
+                <text textAnchor="middle" y={-12} style={{ fill: "#1e293b", fontSize: "10px", fontWeight: isSelected ? "800" : "600", opacity: isSelected ? 1 : 0.6 }}>
                   {route.origin}
                 </text>
               </Marker>
               
               {/* Destination Marker */}
               <Marker coordinates={route.destCoords}>
-                <circle r={isSelected ? 6 : 4} fill={lineColor} className="transition-all duration-300" />
-                <text textAnchor="middle" y={-10} style={{ fill: "white", fontSize: "10px", fontWeight: isSelected ? "bold" : "normal", opacity: isSelected ? 1 : 0.5 }}>
+                <circle r={isSelected ? 6 : 4} fill={lineColor} className="transition-all duration-300" stroke="white" strokeWidth={2} />
+                <text textAnchor="middle" y={-12} style={{ fill: "#1e293b", fontSize: "10px", fontWeight: isSelected ? "800" : "600", opacity: isSelected ? 1 : 0.6 }}>
                   {route.destination}
                 </text>
               </Marker>
