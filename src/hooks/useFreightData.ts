@@ -13,41 +13,52 @@ export interface RouteData {
   history: { time: string; rate: number }[];
 }
 
+const THAILAND_COORDS: [number, number] = [100.91, 13.06]; // Laem Chabang
+
 const INITIAL_ROUTES: RouteData[] = [
   {
-    id: 'CN-US', origin: 'Shanghai', destination: 'Los Angeles',
-    originCoords: [121.4737, 31.2304], destCoords: [-118.2437, 34.0522],
-    currentRate: 4250, previousRate: 4100, changePercent: 3.65,
+    id: 'TH-CN', origin: 'Laem Chabang', destination: 'Shanghai',
+    originCoords: THAILAND_COORDS, destCoords: [121.4737, 31.2304],
+    currentRate: 1250, previousRate: 1200, changePercent: 4.17,
     history: Array.from({ length: 20 }, (_, i) => ({
       time: new Date(Date.now() - (20 - i) * 60000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      rate: 4000 + Math.random() * 300
+      rate: 1100 + Math.random() * 200
     }))
   },
   {
-    id: 'EU-AS', origin: 'Rotterdam', destination: 'Singapore',
-    originCoords: [4.4792, 51.9225], destCoords: [103.8198, 1.3521],
-    currentRate: 3100, previousRate: 3250, changePercent: -4.61,
+    id: 'TH-US', origin: 'Laem Chabang', destination: 'Los Angeles',
+    originCoords: THAILAND_COORDS, destCoords: [-118.2437, 34.0522],
+    currentRate: 4850, previousRate: 4700, changePercent: 3.19,
     history: Array.from({ length: 20 }, (_, i) => ({
       time: new Date(Date.now() - (20 - i) * 60000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      rate: 3000 + Math.random() * 400
+      rate: 4600 + Math.random() * 400
     }))
   },
   {
-    id: 'US-EU', origin: 'New York', destination: 'Hamburg',
-    originCoords: [-74.006, 40.7128], destCoords: [9.9937, 53.5511],
-    currentRate: 2800, previousRate: 2750, changePercent: 1.81,
+    id: 'TH-EU', origin: 'Laem Chabang', destination: 'Rotterdam',
+    originCoords: THAILAND_COORDS, destCoords: [4.4792, 51.9225],
+    currentRate: 3400, previousRate: 3550, changePercent: -4.22,
     history: Array.from({ length: 20 }, (_, i) => ({
       time: new Date(Date.now() - (20 - i) * 60000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      rate: 2600 + Math.random() * 300
+      rate: 3200 + Math.random() * 400
     }))
   },
   {
-    id: 'AS-ME', origin: 'Busan', destination: 'Dubai',
-    originCoords: [129.0756, 35.1796], destCoords: [55.2708, 25.2048],
-    currentRate: 3600, previousRate: 3600, changePercent: 0,
+    id: 'TH-ME', origin: 'Laem Chabang', destination: 'Dubai',
+    originCoords: THAILAND_COORDS, destCoords: [55.2708, 25.2048],
+    currentRate: 2100, previousRate: 2100, changePercent: 0,
     history: Array.from({ length: 20 }, (_, i) => ({
       time: new Date(Date.now() - (20 - i) * 60000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      rate: 3400 + Math.random() * 300
+      rate: 1900 + Math.random() * 300
+    }))
+  },
+  {
+    id: 'TH-JP', origin: 'Laem Chabang', destination: 'Tokyo',
+    originCoords: THAILAND_COORDS, destCoords: [139.6917, 35.6895],
+    currentRate: 1850, previousRate: 1800, changePercent: 2.78,
+    history: Array.from({ length: 20 }, (_, i) => ({
+      time: new Date(Date.now() - (20 - i) * 60000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      rate: 1700 + Math.random() * 250
     }))
   }
 ];
@@ -78,8 +89,8 @@ export function useFreightData() {
           const volatility = 0.05;
           const change = 1 + (Math.random() * volatility * 2 - volatility);
           newRate = Math.round(route.currentRate * change);
-          if (newRate < 1000) newRate = 1000 + Math.random() * 500;
-          if (newRate > 10000) newRate = 10000 - Math.random() * 500;
+          if (newRate < 800) newRate = 800 + Math.random() * 400;
+          if (newRate > 12000) newRate = 12000 - Math.random() * 500;
           changePercent = ((newRate - route.currentRate) / route.currentRate) * 100;
         }
 
