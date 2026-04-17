@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { fetchRouteRate } from '@/lib/freightService';
 
 export interface RouteData {
   id: string;
@@ -59,40 +60,50 @@ export function useFreightData() {
     setGlobalAverage(routes.reduce((acc, curr) => acc + curr.currentRate, 0) / routes.length);
   }, [routes]);
 
-  // Simulate real-time WebSocket updates
   useEffect(() => {
-    const interval = setInterval(() => {
-      setRoutes(currentRoutes => 
-        currentRoutes.map(route => {
-          // Adjust rate randomly between -5% and +5%
+    const updateAllRates = async () => {
+      const updatedRoutes = await Promise.all(routes.map(async (route) => {
+        // Attempt to fetch real rate
+        const apiData = await fetchRouteRate(route.origin, route.destination);
+        
+        let newRate: number;
+        let changePercent: number;
+        
+        if (apiData && apiData.rate > 0) {
+          // Use real data
+          newRate = apiData.rate;
+          changePercent = apiData.change24h;
+        } else {
+          // Fallback to simulation
           const volatility = 0.05;
           const change = 1 + (Math.random() * volatility * 2 - volatility);
-          let newRate = Math.round(route.currentRate * change);
-          
-          // boundary checks
+          newRate = Math.round(route.currentRate * change);
           if (newRate < 1000) newRate = 1000 + Math.random() * 500;
           if (newRate > 10000) newRate = 10000 - Math.random() * 500;
+          changePercent = ((newRate - route.currentRate) / route.currentRate) * 100;
+        }
 
-          const changePercent = ((newRate - route.currentRate) / route.currentRate) * 100;
-          
-          const newHistory = [...route.history.slice(1), {
-            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
-            rate: newRate
-          }];
+        const newHistory = [...route.history.slice(1), {
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+          rate: newRate
+        }];
 
-          return {
-            ...route,
-            previousRate: route.currentRate,
-            currentRate: newRate,
-            changePercent,
-            history: newHistory
-          };
-        })
-      );
-    }, 4000); // Polling every 4 seconds
+        return {
+          ...route,
+          previousRate: route.currentRate,
+          currentRate: newRate,
+          changePercent,
+          history: newHistory
+        };
+      }));
+      
+      setRoutes(updatedRoutes);
+    };
+
+    const interval = setInterval(updateAllRates, 5000); // Polling every 5 seconds
 
     return () => clearInterval(interval);
-  }, []);
+  }, [routes]);
 
   return { routes, globalAverage };
 }
