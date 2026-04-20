@@ -13,6 +13,7 @@ import { Ship, Globe, Info } from "lucide-react";
 export default function Dashboard() {
   const { routes, globalAverage } = useFreightData();
   const [selectedRouteId, setSelectedRouteId] = useState<string>(routes[0]?.id || "TH-CN");
+  const [trendView, setTrendView] = useState<'live' | 'daily'>('live');
 
   const selectedRoute = routes.find(r => r.id === selectedRouteId) || routes[0];
 
@@ -62,15 +63,34 @@ export default function Dashboard() {
                  <Info className="h-4 w-4 text-slate-400" />
               </div>
               <CardHeader className="pb-2 border-b border-slate-50 bg-slate-50/30">
-                <CardTitle className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                  Live Trend Analysis (USD/FEU)
-                </CardTitle>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                    {trendView === 'live' ? 'Live Trend Analysis' : 'Historical Analysis (30D)'}
+                  </CardTitle>
+                  <div className="bg-white border border-slate-200 p-0.5 rounded-lg flex shadow-sm">
+                    <button 
+                      onClick={() => setTrendView('live')}
+                      className={`px-2 py-1 text-[9px] font-black uppercase tracking-tighter rounded-md transition-all ${trendView === 'live' ? 'bg-indigo-600 text-white shadow-md shadow-indigo-100' : 'text-slate-400 hover:text-slate-600'}`}
+                    >
+                      Live
+                    </button>
+                    <button 
+                      onClick={() => setTrendView('daily')}
+                      className={`px-2 py-1 text-[9px] font-black uppercase tracking-tighter rounded-md transition-all ${trendView === 'daily' ? 'bg-indigo-600 text-white shadow-md shadow-indigo-100' : 'text-slate-400 hover:text-slate-600'}`}
+                    >
+                      Daily
+                    </button>
+                  </div>
+                </div>
                 <div className="text-xl font-black mt-2 flex items-baseline gap-2 text-slate-800">
                   {selectedRoute?.origin} <span className="text-slate-300 text-sm font-light">→</span> {selectedRoute?.destination}
                 </div>
               </CardHeader>
               <CardContent>
-                <TrendChart route={selectedRoute} />
+                <TrendChart 
+                  data={trendView === 'live' ? selectedRoute?.history || [] : selectedRoute?.dailyHistory || []} 
+                  isUp={selectedRoute?.changePercent > 0}
+                />
                 <div className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between">
                    <div className="text-[9px] font-bold text-slate-400 uppercase">Reporting Basis</div>
                    <Badge className="bg-slate-100 text-slate-600 border-0 hover:bg-slate-100">FCL - Ocean Freight</Badge>

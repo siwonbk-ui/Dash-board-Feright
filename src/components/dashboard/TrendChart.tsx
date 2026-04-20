@@ -4,11 +4,11 @@ import { RouteData } from "@/hooks/useFreightData";
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid } from "recharts";
 
 interface TrendChartProps {
-  route: RouteData;
+  data: { time: string; rate: number }[];
+  isUp: boolean;
 }
 
-export function TrendChart({ route }: TrendChartProps) {
-  const isUp = route.changePercent > 0;
+export function TrendChart({ data, isUp }: TrendChartProps) {
   // Use red for going up (bad for shipping cost), green for going down
   const strokeColor = isUp ? "#dc2626" : "#059669";
   const fillGradient = isUp ? "url(#colorRedLight)" : "url(#colorGreenLight)";
@@ -16,7 +16,7 @@ export function TrendChart({ route }: TrendChartProps) {
   return (
     <div className="h-[300px] w-full mt-4">
       <ResponsiveContainer width="100%" height="100%">
-        <AreaChart data={route.history} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+        <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
           <defs>
             <linearGradient id="colorGreenLight" x1="0" y1="0" x2="0" y2="1">
               <stop offset="5%" stopColor="#10b981" stopOpacity={0.2}/>
@@ -30,10 +30,10 @@ export function TrendChart({ route }: TrendChartProps) {
           <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(0,0,0,0.05)" />
           <XAxis 
             dataKey="time" 
-            tick={{ fill: 'rgba(0,0,0,0.4)', fontSize: 11, fontWeight: 700 }}
+            tick={{ fill: 'rgba(0,0,0,0.4)', fontSize: 10, fontWeight: 700 }}
             tickLine={false}
             axisLine={false}
-            minTickGap={30}
+            minTickGap={20}
           />
           <YAxis 
             domain={['dataMin - 100', 'dataMax + 100']}
@@ -44,9 +44,9 @@ export function TrendChart({ route }: TrendChartProps) {
             width={55}
           />
           <Tooltip 
-            contentStyle={{ backgroundColor: 'white', border: '1px solid #e2e8f0', borderRadius: '12px', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
+            contentStyle={{ backgroundColor: 'white', border: 'none', borderRadius: '12px', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)' }}
             itemStyle={{ color: '#0f172a', fontWeight: 'bold' }}
-            formatter={(value: any) => [`$${Number(value).toFixed(0)} USD`, 'Rate per FEU']}
+            formatter={(value: any) => [`$${Number(value).toLocaleString()} USD`, 'Rate per FEU']}
             labelStyle={{ color: '#64748b', marginBottom: '5px', fontWeight: 'bold', fontSize: '10px' }}
           />
           <Area 
