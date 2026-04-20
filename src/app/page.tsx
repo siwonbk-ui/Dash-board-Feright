@@ -8,12 +8,15 @@ import { RouteTable } from "@/components/dashboard/RouteTable";
 import { TrendChart } from "@/components/dashboard/TrendChart";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Ship, Globe, Info } from "lucide-react";
+import { Ship, Globe, Info, Package } from "lucide-react";
+import { LogisticsTabs } from "@/components/layout/LogisticsTabs";
+import { ParcelRateChecker } from "@/components/parcel/ParcelRateChecker";
 
 export default function Dashboard() {
   const { routes, globalAverage } = useFreightData();
   const [selectedRouteId, setSelectedRouteId] = useState<string>(routes[0]?.id || "TH-CN");
   const [trendView, setTrendView] = useState<'live' | 'daily' | 'monthly'>('live');
+  const [activeTab, setActiveTab] = useState<'ocean' | 'parcel'>('ocean');
 
   const selectedRoute = routes.find(r => r.id === selectedRouteId) || routes[0];
 
@@ -35,10 +38,10 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen relative selection:bg-indigo-100 pb-20">
-      <div className="container mx-auto p-4 md:p-8 space-y-6 max-w-7xl relative z-10">
+      <div className="container mx-auto p-4 md:p-8 space-y-8 max-w-7xl relative z-10">
         
         {/* Header */}
-        <header className="flex flex-col md:flex-row md:items-center justify-between mb-8 pb-6 border-b border-slate-200 gap-4">
+        <header className="flex flex-col md:flex-row md:items-center justify-between mb-2 pb-6 border-b border-slate-200 gap-4">
           <div className="flex items-center space-x-4">
             <div className="w-14 h-14 rounded-2xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-200">
               <Ship className="text-white h-8 w-8" />
@@ -69,85 +72,106 @@ export default function Dashboard() {
           </div>
         </header>
 
-        {/* Top Row: KPIs and Map */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-1 space-y-8">
-            <OverviewPanel globalAverage={globalAverage} />
-            
-            <Card className="bg-white border-slate-200 shadow-2xl relative overflow-hidden group">
-              <div className="absolute top-0 right-0 p-3 opacity-20 group-hover:opacity-40 transition-opacity">
-                 <Info className="h-4 w-4 text-slate-400" />
-              </div>
-              <CardHeader className="pb-2 border-b border-slate-50 bg-slate-50/30">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                  <CardTitle className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                    {getTrendTitle()}
-                  </CardTitle>
-                  <div className="bg-white border border-slate-200 p-0.5 rounded-lg flex shadow-sm w-fit">
-                    <button 
-                      onClick={() => setTrendView('live')}
-                      className={`px-2 py-1 text-[9px] font-black uppercase tracking-tighter rounded-md transition-all ${trendView === 'live' ? 'bg-indigo-600 text-white shadow-md shadow-indigo-100' : 'text-slate-400 hover:text-slate-600'}`}
-                    >
-                      Live
-                    </button>
-                    <button 
-                      onClick={() => setTrendView('daily')}
-                      className={`px-2 py-1 text-[9px] font-black uppercase tracking-tighter rounded-md transition-all ${trendView === 'daily' ? 'bg-indigo-600 text-white shadow-md shadow-indigo-100' : 'text-slate-400 hover:text-slate-600'}`}
-                    >
-                      Daily
-                    </button>
-                    <button 
-                      onClick={() => setTrendView('monthly')}
-                      className={`px-2 py-1 text-[9px] font-black uppercase tracking-tighter rounded-md transition-all ${trendView === 'monthly' ? 'bg-indigo-600 text-white shadow-md shadow-indigo-100' : 'text-slate-400 hover:text-slate-600'}`}
-                    >
-                      Monthly
-                    </button>
-                  </div>
-                </div>
-                <div className="text-xl font-black mt-2 flex items-baseline gap-2 text-slate-800">
-                  {selectedRoute?.origin} <span className="text-slate-300 text-sm font-light">→</span> {selectedRoute?.destination}
-                </div>
-              </CardHeader>
-              <CardContent>
-                <TrendChart 
-                  data={getTrendData()} 
-                  isUp={selectedRoute?.changePercent > 0}
-                />
-                <div className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between">
-                   <div className="text-[9px] font-bold text-slate-400 uppercase">Reporting Basis</div>
-                   <Badge className="bg-slate-100 text-slate-600 border-0 hover:bg-slate-100">FCL - Ocean Freight</Badge>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-          
-          <div className="lg:col-span-2">
-             <InteractiveMap 
-               routes={routes} 
-               selectedRouteId={selectedRouteId} 
-               onSelectRoute={setSelectedRouteId} 
-             />
-          </div>
+        {/* Tab Switcher */}
+        <div className="flex justify-center md:justify-start">
+          <LogisticsTabs activeTab={activeTab} onTabChange={setActiveTab} />
         </div>
 
-        {/* Bottom Row: Table */}
-        <div className="grid grid-cols-1 pt-4">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-black tracking-tight text-slate-800 flex items-center">
-              Active Export Segments
-              <span className="ml-3 px-2 py-0.5 bg-indigo-600 text-white text-[9px] font-black rounded uppercase tracking-tighter">
-                {routes.length} Active Routes
-              </span>
-            </h2>
+        {activeTab === 'ocean' ? (
+          <div className="space-y-8 animate-in fade-in duration-500">
+            {/* Top Row: KPIs and Map */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              <div className="lg:col-span-1 space-y-8">
+                <OverviewPanel globalAverage={globalAverage} />
+                
+                <Card className="bg-white border-slate-200 shadow-2xl relative overflow-hidden group">
+                  <div className="absolute top-0 right-0 p-3 opacity-20 group-hover:opacity-40 transition-opacity">
+                    <Info className="h-4 w-4 text-slate-400" />
+                  </div>
+                  <CardHeader className="pb-2 border-b border-slate-50 bg-slate-50/30">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                      <CardTitle className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                        {getTrendTitle()}
+                      </CardTitle>
+                      <div className="bg-white border border-slate-200 p-0.5 rounded-lg flex shadow-sm w-fit">
+                        <button 
+                          onClick={() => setTrendView('live')}
+                          className={`px-2 py-1 text-[9px] font-black uppercase tracking-tighter rounded-md transition-all ${trendView === 'live' ? 'bg-indigo-600 text-white shadow-md shadow-indigo-100' : 'text-slate-400 hover:text-slate-600'}`}
+                        >
+                          Live
+                        </button>
+                        <button 
+                          onClick={() => setTrendView('daily')}
+                          className={`px-2 py-1 text-[9px] font-black uppercase tracking-tighter rounded-md transition-all ${trendView === 'daily' ? 'bg-indigo-600 text-white shadow-md shadow-indigo-100' : 'text-slate-400 hover:text-slate-600'}`}
+                        >
+                          Daily
+                        </button>
+                        <button 
+                          onClick={() => setTrendView('monthly')}
+                          className={`px-2 py-1 text-[9px] font-black uppercase tracking-tighter rounded-md transition-all ${trendView === 'monthly' ? 'bg-indigo-600 text-white shadow-md shadow-indigo-100' : 'text-slate-400 hover:text-slate-600'}`}
+                        >
+                          Monthly
+                        </button>
+                      </div>
+                    </div>
+                    <div className="text-xl font-black mt-2 flex items-baseline gap-2 text-slate-800">
+                      {selectedRoute?.origin} <span className="text-slate-300 text-sm font-light">→</span> {selectedRoute?.destination}
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center space-x-1.5">
+                        <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tight">Market Benchmarks (April 2026)</span>
+                      </div>
+                      <div className="text-[9px] font-black text-indigo-600/60 uppercase tracking-tighter">Source: WCI / SCFI Index</div>
+                    </div>
+                    <TrendChart 
+                      data={getTrendData()} 
+                      isUp={selectedRoute?.changePercent > 0}
+                    />
+                    <div className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between">
+                      <div className="text-[9px] font-bold text-slate-400 uppercase">Reporting Basis</div>
+                      <Badge variant="outline" className="bg-slate-100 text-slate-600 border-0 hover:bg-slate-100">FCL - Ocean Freight</Badge>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+              
+              <div className="lg:col-span-2">
+                <InteractiveMap 
+                  routes={routes} 
+                  selectedRouteId={selectedRouteId} 
+                  onSelectRoute={setSelectedRouteId} 
+                />
+              </div>
+            </div>
+
+            {/* Bottom Row: Table */}
+            <div className="grid grid-cols-1 pt-4">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-black tracking-tight text-slate-800 flex items-center">
+                  Active Export Segments
+                  <span className="ml-3 px-2 py-0.5 bg-indigo-600 text-white text-[9px] font-black rounded uppercase tracking-tighter">
+                    {routes.length} Active Routes
+                  </span>
+                </h2>
+              </div>
+              <RouteTable 
+                routes={routes} 
+                onSelectRoute={setSelectedRouteId}
+                selectedRouteId={selectedRouteId} 
+              />
+            </div>
           </div>
-          <RouteTable 
-            routes={routes} 
-            onSelectRoute={setSelectedRouteId}
-            selectedRouteId={selectedRouteId} 
-          />
-        </div>
+        ) : (
+          <div className="animate-in slide-in-from-bottom-4 duration-500">
+             <ParcelRateChecker />
+          </div>
+        )}
         
       </div>
     </div>
   );
 }
+

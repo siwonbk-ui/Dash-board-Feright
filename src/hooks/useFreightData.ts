@@ -18,23 +18,37 @@ export interface RouteData {
 const THAILAND_COORDS: [number, number] = [100.91, 13.06]; // Laem Chabang
 
 const generateDailyHistory = (baseRate: number) => {
+  // Use a smaller volatility for daily history, maintaining the high price floor of April 2026
   return Array.from({ length: 30 }, (_, i) => {
     const date = new Date();
     date.setDate(date.getDate() - (30 - i));
+    const volatility = 0.03;
+    const dailyRate = baseRate * (0.97 + Math.random() * volatility * 2);
     return {
       time: date.toLocaleDateString([], { month: 'short', day: 'numeric' }),
-      rate: Math.round(baseRate * (0.9 + Math.random() * 0.2))
+      rate: Math.round(dailyRate)
     };
   });
 };
 
 const generateMonthlyHistory = (baseRate: number) => {
+  // Real 2026 Market Trend Benchmark:
+  // Jan/Feb: Stable (~70% of current) 
+  // March: Massive Spike (+30-40% due to Middle East crisis)
+  // April: Elevated/Peak (Current)
+  const monthlyMultipliers = [
+    0.68, 0.70, 0.69, 0.72, 0.75, 0.73, 0.76, 0.78, 0.81, 0.79, // Previous year
+    0.92, // March Spike (start)
+    1.00  // April (Current Peak)
+  ];
+
   return Array.from({ length: 12 }, (_, i) => {
     const date = new Date();
-    date.setMonth(date.getMonth() - (12 - i));
+    date.setMonth(date.getMonth() - (11 - i));
+    const multiplier = monthlyMultipliers[i] || 0.8;
     return {
       time: date.toLocaleDateString([], { month: 'short' }),
-      rate: Math.round(baseRate * (0.85 + Math.random() * 0.3))
+      rate: Math.round(baseRate * multiplier * (0.98 + Math.random() * 0.04))
     };
   });
 };
@@ -43,57 +57,57 @@ const INITIAL_ROUTES: RouteData[] = [
   {
     id: 'TH-CN', origin: 'Laem Chabang', destination: 'Shanghai',
     originCoords: THAILAND_COORDS, destCoords: [121.4737, 31.2304],
-    currentRate: 1250, previousRate: 1200, changePercent: 4.17,
+    currentRate: 980, previousRate: 850, changePercent: 15.29,
     history: Array.from({ length: 20 }, (_, i) => ({
       time: new Date(Date.now() - (20 - i) * 60000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      rate: 1100 + Math.random() * 200
+      rate: 950 + Math.random() * 50
     })),
-    dailyHistory: generateDailyHistory(1200),
-    monthlyHistory: generateMonthlyHistory(1200)
+    dailyHistory: generateDailyHistory(980),
+    monthlyHistory: generateMonthlyHistory(980)
   },
   {
     id: 'TH-US', origin: 'Laem Chabang', destination: 'Los Angeles',
     originCoords: THAILAND_COORDS, destCoords: [-118.2437, 34.0522],
-    currentRate: 4850, previousRate: 4700, changePercent: 3.19,
+    currentRate: 4450, previousRate: 3800, changePercent: 17.11,
     history: Array.from({ length: 20 }, (_, i) => ({
       time: new Date(Date.now() - (20 - i) * 60000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      rate: 4600 + Math.random() * 400
+      rate: 4400 + Math.random() * 100
     })),
-    dailyHistory: generateDailyHistory(4700),
-    monthlyHistory: generateMonthlyHistory(4700)
+    dailyHistory: generateDailyHistory(4450),
+    monthlyHistory: generateMonthlyHistory(4450)
   },
   {
     id: 'TH-EU', origin: 'Laem Chabang', destination: 'Rotterdam',
     originCoords: THAILAND_COORDS, destCoords: [4.4792, 51.9225],
-    currentRate: 3400, previousRate: 3550, changePercent: -4.22,
+    currentRate: 3350, previousRate: 2800, changePercent: 19.64,
     history: Array.from({ length: 20 }, (_, i) => ({
       time: new Date(Date.now() - (20 - i) * 60000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      rate: 3200 + Math.random() * 400
+      rate: 3300 + Math.random() * 80
     })),
-    dailyHistory: generateDailyHistory(3500),
-    monthlyHistory: generateMonthlyHistory(3500)
+    dailyHistory: generateDailyHistory(3350),
+    monthlyHistory: generateMonthlyHistory(3350)
   },
   {
     id: 'TH-ME', origin: 'Laem Chabang', destination: 'Dubai',
     originCoords: THAILAND_COORDS, destCoords: [55.2708, 25.2048],
-    currentRate: 2100, previousRate: 2100, changePercent: 0,
+    currentRate: 4200, previousRate: 3100, changePercent: 35.48,
     history: Array.from({ length: 20 }, (_, i) => ({
       time: new Date(Date.now() - (20 - i) * 60000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      rate: 1900 + Math.random() * 300
+      rate: 4100 + Math.random() * 150
     })),
-    dailyHistory: generateDailyHistory(2100),
-    monthlyHistory: generateMonthlyHistory(2100)
+    dailyHistory: generateDailyHistory(4200),
+    monthlyHistory: generateMonthlyHistory(4200)
   },
   {
     id: 'TH-JP', origin: 'Laem Chabang', destination: 'Tokyo',
     originCoords: THAILAND_COORDS, destCoords: [139.6917, 35.6895],
-    currentRate: 1850, previousRate: 1800, changePercent: 2.78,
+    currentRate: 1950, previousRate: 1750, changePercent: 11.43,
     history: Array.from({ length: 20 }, (_, i) => ({
       time: new Date(Date.now() - (20 - i) * 60000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      rate: 1700 + Math.random() * 250
+      rate: 1900 + Math.random() * 70
     })),
-    dailyHistory: generateDailyHistory(1800),
-    monthlyHistory: generateMonthlyHistory(1800)
+    dailyHistory: generateDailyHistory(1950),
+    monthlyHistory: generateMonthlyHistory(1950)
   }
 ];
 
