@@ -9,7 +9,7 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
-    const { from_zip, to_zip, weight, length, width, height } = body;
+    const { from_zip, to_zip, from_country, to_country, weight, length, width, height } = body;
 
     // Create a shipment to get rates
     // https://goshippo.com/docs/rates
@@ -22,11 +22,11 @@ export async function POST(request: Request) {
       body: JSON.stringify({
         address_from: {
           zip: from_zip,
-          country: 'US', // Defaulting to US for the test key as it's common for Shippo tests
+          country: from_country || 'US',
         },
         address_to: {
           zip: to_zip,
-          country: 'US',
+          country: to_country || 'US',
         },
         parcels: [{
           length: length || "5",

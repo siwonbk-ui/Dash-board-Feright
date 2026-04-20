@@ -18,13 +18,25 @@ interface Rate {
   provider_image?: string;
 }
 
+const COUNTRIES = [
+  { code: 'US', name: 'United States', zip: '90001' },
+  { code: 'TH', name: 'Thailand', zip: '10100' },
+  { code: 'CN', name: 'China', zip: '200000' },
+  { code: 'JP', name: 'Japan', zip: '100-0001' },
+  { code: 'GB', name: 'United Kingdom', zip: 'E1 6AN' },
+  { code: 'DE', name: 'Germany', zip: '10115' },
+];
+
 export function ParcelRateChecker() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [rates, setRates] = useState<Rate[]>([]);
+  const [hasSearched, setHasSearched] = useState(false);
   
   const [formData, setFormData] = useState({
+    from_country: "US",
     from_zip: "94117",
+    to_country: "US",
     to_zip: "90001",
     weight: "2",
     length: "5",
@@ -32,11 +44,23 @@ export function ParcelRateChecker() {
     height: "5"
   });
 
+  const handleCountryChange = (type: 'from' | 'to', countryCode: string) => {
+    const country = COUNTRIES.find(c => c.code === countryCode);
+    if (!country) return;
+
+    if (type === 'from') {
+      setFormData({ ...formData, from_country: countryCode, from_zip: country.zip });
+    } else {
+      setFormData({ ...formData, to_country: countryCode, to_zip: country.zip });
+    }
+  };
+
   const handleFetchRates = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
     setRates([]);
+    setHasSearched(true);
 
     try {
       const response = await fetch("/api/shippo/rates", {
@@ -68,36 +92,64 @@ export function ParcelRateChecker() {
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-6">
-            <form onSubmit={handleFetchRates} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider">From ZIP</label>
-                  <div className="relative">
-                    <MapPin className="absolute left-3 top-2.5 h-4 w-4 text-slate-300" />
+            <form onSubmit={handleFetchRates} className="space-y-6">
+              {/* Origin Section */}
+              <div className="space-y-3">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Origin (From)</label>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-bold text-slate-500 uppercase">Country</label>
+                    <select 
+                      value={formData.from_country}
+                      onChange={(e) => handleCountryChange('from', e.target.value)}
+                      className="w-full h-10 rounded-xl border border-slate-200 bg-slate-50 px-2 text-xs font-bold text-slate-700 focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                    >
+                      {COUNTRIES.map(c => <option key={c.code} value={c.code}>{c.name}</option>)}
+                    </select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-bold text-slate-500 uppercase">ZIP / Postal</label>
                     <Input 
                       value={formData.from_zip} 
                       onChange={(e) => setFormData({...formData, from_zip: e.target.value})}
-                      className="pl-9 bg-slate-50 border-slate-200" 
-                      placeholder="94117" 
+                      className="bg-slate-50 border-slate-200 text-xs font-mono" 
+                      placeholder="ZIP" 
                     />
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider">To ZIP</label>
-                  <div className="relative">
-                    <MapPin className="absolute left-3 top-2.5 h-4 w-4 text-slate-300" />
+              </div>
+
+              {/* Destination Section */}
+              <div className="space-y-3">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Destination (To)</label>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-bold text-slate-500 uppercase">Country</label>
+                    <select 
+                      value={formData.to_country}
+                      onChange={(e) => handleCountryChange('to', e.target.value)}
+                      className="w-full h-10 rounded-xl border border-slate-200 bg-slate-50 px-2 text-xs font-bold text-slate-700 focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                    >
+                      {COUNTRIES.map(c => <option key={c.code} value={c.code}>{c.name}</option>)}
+                    </select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-bold text-slate-500 uppercase">ZIP / Postal</label>
                     <Input 
-                      value={formData.to_zip}
+                      value={formData.to_zip} 
                       onChange={(e) => setFormData({...formData, to_zip: e.target.value})}
-                      className="pl-9 bg-slate-50 border-slate-200" 
-                      placeholder="90210" 
+                      className="bg-slate-50 border-slate-200 text-xs font-mono" 
+                      placeholder="ZIP" 
                     />
                   </div>
                 </div>
               </div>
 
               <div className="space-y-2">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Weight (lbs)</label>
+                <div className="flex justify-between items-center">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Weight (lbs)</label>
+                  <span className="text-[9px] font-bold text-indigo-500">Max 70-150 lbs</span>
+                </div>
                 <div className="relative">
                   <Package className="absolute left-3 top-2.5 h-4 w-4 text-slate-300" />
                   <Input 
@@ -106,6 +158,8 @@ export function ParcelRateChecker() {
                     onChange={(e) => setFormData({...formData, weight: e.target.value})}
                     className="pl-9 bg-slate-50 border-slate-200" 
                     placeholder="2" 
+                    min="0.1"
+                    step="0.1"
                   />
                 </div>
               </div>
@@ -136,6 +190,7 @@ export function ParcelRateChecker() {
             </form>
           </CardContent>
         </Card>
+
 
         <div className="bg-indigo-50 border border-indigo-100 p-4 rounded-2xl flex items-start space-x-3">
           <AlertCircle className="h-5 w-5 text-indigo-500 mt-0.5" />
@@ -219,6 +274,16 @@ export function ParcelRateChecker() {
                   </div>
                 </motion.div>
               ))
+            ) : hasSearched ? (
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="flex flex-col items-center justify-center py-20 bg-amber-50 rounded-3xl border border-amber-100"
+              >
+                <AlertCircle className="h-10 w-10 text-amber-500 mb-4" />
+                <p className="text-sm font-bold text-amber-700">No rates found for this shipment</p>
+                <p className="text-xs text-amber-600 mt-2">Try reducing the weight or checking the ZIP codes.</p>
+              </motion.div>
             ) : (
               <div className="flex flex-col items-center justify-center py-20 bg-slate-50 rounded-3xl border border-slate-100">
                 <Search className="h-10 w-10 text-slate-200 mb-4" />
@@ -229,5 +294,6 @@ export function ParcelRateChecker() {
         </div>
       </div>
     </div>
+
   );
 }
