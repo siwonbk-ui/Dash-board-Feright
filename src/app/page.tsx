@@ -13,9 +13,25 @@ import { Ship, Globe, Info } from "lucide-react";
 export default function Dashboard() {
   const { routes, globalAverage } = useFreightData();
   const [selectedRouteId, setSelectedRouteId] = useState<string>(routes[0]?.id || "TH-CN");
-  const [trendView, setTrendView] = useState<'live' | 'daily'>('live');
+  const [trendView, setTrendView] = useState<'live' | 'daily' | 'monthly'>('live');
 
   const selectedRoute = routes.find(r => r.id === selectedRouteId) || routes[0];
+
+  const getTrendData = () => {
+    switch (trendView) {
+      case 'daily': return selectedRoute?.dailyHistory || [];
+      case 'monthly': return selectedRoute?.monthlyHistory || [];
+      default: return selectedRoute?.history || [];
+    }
+  };
+
+  const getTrendTitle = () => {
+    switch (trendView) {
+      case 'daily': return 'Historical Analysis (30D)';
+      case 'monthly': return 'Market Benchmark (12M)';
+      default: return 'Live Trend Analysis';
+    }
+  };
 
   return (
     <div className="min-h-screen relative selection:bg-indigo-100 pb-20">
@@ -63,11 +79,11 @@ export default function Dashboard() {
                  <Info className="h-4 w-4 text-slate-400" />
               </div>
               <CardHeader className="pb-2 border-b border-slate-50 bg-slate-50/30">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                   <CardTitle className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                    {trendView === 'live' ? 'Live Trend Analysis' : 'Historical Analysis (30D)'}
+                    {getTrendTitle()}
                   </CardTitle>
-                  <div className="bg-white border border-slate-200 p-0.5 rounded-lg flex shadow-sm">
+                  <div className="bg-white border border-slate-200 p-0.5 rounded-lg flex shadow-sm w-fit">
                     <button 
                       onClick={() => setTrendView('live')}
                       className={`px-2 py-1 text-[9px] font-black uppercase tracking-tighter rounded-md transition-all ${trendView === 'live' ? 'bg-indigo-600 text-white shadow-md shadow-indigo-100' : 'text-slate-400 hover:text-slate-600'}`}
@@ -80,6 +96,12 @@ export default function Dashboard() {
                     >
                       Daily
                     </button>
+                    <button 
+                      onClick={() => setTrendView('monthly')}
+                      className={`px-2 py-1 text-[9px] font-black uppercase tracking-tighter rounded-md transition-all ${trendView === 'monthly' ? 'bg-indigo-600 text-white shadow-md shadow-indigo-100' : 'text-slate-400 hover:text-slate-600'}`}
+                    >
+                      Monthly
+                    </button>
                   </div>
                 </div>
                 <div className="text-xl font-black mt-2 flex items-baseline gap-2 text-slate-800">
@@ -88,7 +110,7 @@ export default function Dashboard() {
               </CardHeader>
               <CardContent>
                 <TrendChart 
-                  data={trendView === 'live' ? selectedRoute?.history || [] : selectedRoute?.dailyHistory || []} 
+                  data={getTrendData()} 
                   isUp={selectedRoute?.changePercent > 0}
                 />
                 <div className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between">

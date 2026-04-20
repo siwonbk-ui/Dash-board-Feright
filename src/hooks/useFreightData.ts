@@ -12,6 +12,7 @@ export interface RouteData {
   changePercent: number;
   history: { time: string; rate: number }[];
   dailyHistory: { time: string; rate: number }[];
+  monthlyHistory: { time: string; rate: number }[];
 }
 
 const THAILAND_COORDS: [number, number] = [100.91, 13.06]; // Laem Chabang
@@ -27,6 +28,17 @@ const generateDailyHistory = (baseRate: number) => {
   });
 };
 
+const generateMonthlyHistory = (baseRate: number) => {
+  return Array.from({ length: 12 }, (_, i) => {
+    const date = new Date();
+    date.setMonth(date.getMonth() - (12 - i));
+    return {
+      time: date.toLocaleDateString([], { month: 'short' }),
+      rate: Math.round(baseRate * (0.85 + Math.random() * 0.3))
+    };
+  });
+};
+
 const INITIAL_ROUTES: RouteData[] = [
   {
     id: 'TH-CN', origin: 'Laem Chabang', destination: 'Shanghai',
@@ -36,7 +48,8 @@ const INITIAL_ROUTES: RouteData[] = [
       time: new Date(Date.now() - (20 - i) * 60000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       rate: 1100 + Math.random() * 200
     })),
-    dailyHistory: generateDailyHistory(1200)
+    dailyHistory: generateDailyHistory(1200),
+    monthlyHistory: generateMonthlyHistory(1200)
   },
   {
     id: 'TH-US', origin: 'Laem Chabang', destination: 'Los Angeles',
@@ -46,7 +59,8 @@ const INITIAL_ROUTES: RouteData[] = [
       time: new Date(Date.now() - (20 - i) * 60000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       rate: 4600 + Math.random() * 400
     })),
-    dailyHistory: generateDailyHistory(4700)
+    dailyHistory: generateDailyHistory(4700),
+    monthlyHistory: generateMonthlyHistory(4700)
   },
   {
     id: 'TH-EU', origin: 'Laem Chabang', destination: 'Rotterdam',
@@ -56,7 +70,8 @@ const INITIAL_ROUTES: RouteData[] = [
       time: new Date(Date.now() - (20 - i) * 60000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       rate: 3200 + Math.random() * 400
     })),
-    dailyHistory: generateDailyHistory(3500)
+    dailyHistory: generateDailyHistory(3500),
+    monthlyHistory: generateMonthlyHistory(3500)
   },
   {
     id: 'TH-ME', origin: 'Laem Chabang', destination: 'Dubai',
@@ -66,7 +81,8 @@ const INITIAL_ROUTES: RouteData[] = [
       time: new Date(Date.now() - (20 - i) * 60000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       rate: 1900 + Math.random() * 300
     })),
-    dailyHistory: generateDailyHistory(2100)
+    dailyHistory: generateDailyHistory(2100),
+    monthlyHistory: generateMonthlyHistory(2100)
   },
   {
     id: 'TH-JP', origin: 'Laem Chabang', destination: 'Tokyo',
@@ -76,7 +92,8 @@ const INITIAL_ROUTES: RouteData[] = [
       time: new Date(Date.now() - (20 - i) * 60000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       rate: 1700 + Math.random() * 250
     })),
-    dailyHistory: generateDailyHistory(1800)
+    dailyHistory: generateDailyHistory(1800),
+    monthlyHistory: generateMonthlyHistory(1800)
   }
 ];
 
